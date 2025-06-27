@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Barang QR App</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    input {
+      padding: 10px;
+      margin: 10px;
+      width: 90%;
+      max-width: 300px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #qr-container {
+      margin-top: 20px;
+    }
+    .data-box {
+      margin-top: 2rem;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 8px;
+      background: white;
+      max-width: 400px;
+      margin-inline: auto;
+    }
+    .checkmark {
+      font-size: 3rem;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Form Barang</h2>
+
+<div id="form-section">
+  <input type="text" id="nama" placeholder="Nama">
+  <input type="text" id="barang" placeholder="Nama Barang">
+  <input type="text" id="wa" placeholder="No WhatsApp">
+  <br>
+  <button onclick="uploadData()">Upload</button>
+</div>
+
+<div id="qr-container"></div>
+
+<div id="show-section" style="display:none;">
+  <div class="checkmark">✅</div>
+  <div class="data-box" id="data-box"></div>
+</div>
+
+<script type="module">
+  // ✅ Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ✅ Firebase Config Kamu
+  const firebaseConfig = {
+    apiKey: "AIzaSyD4tJuj4T6ha7-Jsu4g3NgQWLJGnLbWxpA",
+    authDomain: "barangfound.firebaseapp.com",
+    databaseURL: "https://barangfound-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "barangfound",
+    storageBucket: "barangfound.firebasestorage.app",
+    messagingSenderId: "811507258125",
+    appId: "1:811507258125:web:1758bd8a7aadeaf57cd644"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const path = window.location.pathname.replace("/", "");
+
+  if (path && path.length >= 6) {
+    document.getElementById("form-section").style.display = "none";
+    get(ref(db, "barang/" + path)).then(snapshot => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        document.getElementById("show-section").style.display = "block";
+        document.getElementById("data-box").innerHTML = `
+          <b>Nama:</b> ${data.nama}<br>
+          <b>Barang:</b> ${data.barang}<br>
+          <b>No WA:</b> ${data.wa}
+        `;
+      } else {
+        Swal.fire("Data tidak ditemukan", "", "error");
+      }
+    });
+  }
+
+  window.uploadData = async function() {
+    const nama = document.getElementById("nama").value;
+    const barang = document.getElementById("barang").value;
+    const wa = document.getElementById("wa").value;
+
+    if (!nama || !barang || !wa) {
+      Swal.fire("Isi semua kolom", "", "warning");
+      return;
+    }
+
+    const uid = Math.random().toString(36).substring(2, 10);
+    await set(ref(db, "barang/" + uid), { nama, barang, wa });
+
+    const url = `${window.location.origin}/${uid}`;
+    QRCode.toCanvas(document.createElement("canvas"), url, function (err, canvas) {
+      const qrDiv = document.getElementById("qr-container");
+      qrDiv.innerHTML = `<p>Scan QR ini untuk melihat data:</p>`;
+      qrDiv.appendChild(canvas);
+
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL();
+      a.download = `QR_${uid}.png`;
+      a.innerText = "Download QR";
+      a.style.display = "block";
+      a.style.marginTop = "10px";
+      qrDiv.appendChild(a);
+    });
+  };
+</script>
+
+</body>
+</html>
