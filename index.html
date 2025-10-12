@@ -171,7 +171,7 @@
           document.getElementById("data-box").innerHTML = `
             <b>👤 Nama:</b> ${data.nama}<br>
             <b>🎒 Barang:</b> ${data.barang}<br>
-            <b>📱 No WA:</b> <a href="https://wa.me/${data.wa}" target="_blank">${data.wa}</a><br>
+            <b>📱 No WA:</b> <a href="https://wa.me/+62${data.wa}" target="_blank">${data.wa}</a><br>
             ${data.lokasi ? `<b>📍 Lokasi:</b> <a href="https://www.google.com/maps?q=${data.lokasi.lat},${data.lokasi.lng}" target="_blank">Lihat di Google Maps</a>` : ""}
           `;
         } else {
