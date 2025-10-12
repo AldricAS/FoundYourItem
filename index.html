@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Temukan Barang Mu</title>
+
+  <!-- ✅ Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3550578927588612"
+     crossorigin="anonymous"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
@@ -127,6 +132,19 @@
     <button onclick="uploadData()">🚀 Upload Data</button>
   </div>
 
+  <!-- ✅ Iklan responsif (diletakkan di bawah form) -->
+  <div style="margin-top: 25px;">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-3550578927588612"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
   <div id="qr-container"></div>
 
   <div id="show-section" style="display:none;">
@@ -160,7 +178,6 @@
     const db = getDatabase(app);
     const path = window.location.pathname.replace("/", "");
 
-    // Jika ada ID di URL → tampilkan data barang
     if (path && path.length >= 6) {
       document.getElementById("form-section").style.display = "none";
       get(ref(db, "barang/" + path)).then(snapshot => {
@@ -179,7 +196,6 @@
       });
     }
 
-    // Upload Data ke Firebase + lokasi
     window.uploadData = async function() {
       const nama = document.getElementById("nama").value.trim();
       const barang = document.getElementById("barang").value.trim();
@@ -197,7 +213,6 @@
         didOpen: () => Swal.showLoading()
       });
 
-      // Ambil lokasi GPS
       navigator.geolocation.getCurrentPosition(async (pos) => {
         const lokasi = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         const uid = Math.random().toString(36).substring(2, 10);
@@ -224,11 +239,3 @@
         });
 
         Swal.fire("🎉 Data & Lokasi Berhasil Diupload!", "QR Code siap digunakan.", "success");
-      }, () => {
-        Swal.fire("❌ Lokasi tidak bisa diambil", "Pastikan GPS aktif & izinkan lokasi.", "error");
-      });
-    };
-  </script>
-
-</body>
-</html>
