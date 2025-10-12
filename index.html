@@ -7,131 +7,218 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
+    /* 🌈 Gaya Modern Neumorphism */
     body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
       margin: 0;
       padding: 2rem;
       text-align: center;
+      color: #333;
+      animation: fadeIn 1s ease-in;
     }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      animation: fadeDown 1s ease-in-out;
+    }
+
     input {
-      padding: 10px;
+      padding: 12px;
       margin: 10px;
       width: 90%;
-      max-width: 300px;
+      max-width: 320px;
+      border-radius: 12px;
+      border: none;
+      background: #e0e0e0;
+      box-shadow: inset 3px 3px 6px #bcbcbc, inset -3px -3px 6px #ffffff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+      animation: fadeUp 0.8s ease forwards;
     }
+
+    input:focus {
+      background: #fff;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+    }
+
     button {
-      padding: 10px 20px;
+      padding: 12px 25px;
       background: #4caf50;
       color: white;
       border: none;
+      border-radius: 30px;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+      animation: popIn 0.8s ease forwards;
     }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+      background: #43a047;
+    }
+
     #qr-container {
-      margin-top: 20px;
+      margin-top: 25px;
+      animation: fadeIn 1.2s ease forwards;
     }
+
     .data-box {
       margin-top: 2rem;
-      border: 1px solid #ddd;
-      padding: 1rem;
-      border-radius: 8px;
-      background: white;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 8px 8px 16px #c1c1c1, -8px -8px 16px #ffffff;
+      padding: 1.5rem;
       max-width: 400px;
       margin-inline: auto;
+      text-align: left;
+      animation: slideUp 1s ease forwards;
     }
+
     .checkmark {
-      font-size: 3rem;
-      color: green;
+      font-size: 4rem;
+      color: #4caf50;
+      animation: bounce 1.2s infinite alternate;
+    }
+
+    a {
+      text-decoration: none;
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    /* 🌟 Animasi */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
     }
   </style>
 </head>
 <body>
 
-<h2>Data barang ditemukan</h2>
+  <h2>📦 Barang QR App</h2>
 
-<div id="form-section">
-  <input type="text" id="nama" placeholder="Nama">
-  <input type="text" id="barang" placeholder="Nama Barang">
-  <input type="text" id="wa" placeholder="No WhatsApp">
-  <br>
-  <button onclick="uploadData()">Upload</button>
-</div>
+  <div id="form-section">
+    <input type="text" id="nama" placeholder="Nama Pemilik">
+    <input type="text" id="barang" placeholder="Nama Barang">
+    <input type="text" id="wa" placeholder="No WhatsApp">
+    <br>
+    <button onclick="uploadData()">🚀 Upload Data</button>
+  </div>
 
-<div id="qr-container"></div>
+  <div id="qr-container"></div>
 
-<div id="show-section" style="display:none;">
-  <div class="checkmark">👍</div>
-  <div class="data-box" id="data-box"></div>
-</div>
+  <div id="show-section" style="display:none;">
+    <div class="checkmark">👍</div>
+    <div class="data-box" id="data-box"></div>
+  </div>
 
-<script type="module">
-  // ✅ Firebase SDK
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <script type="module">
+    // ✅ Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  // ✅ Firebase Config Kamu
-  const firebaseConfig = {
-    apiKey: "AIzaSyD4tJuj4T6ha7-Jsu4g3NgQWLJGnLbWxpA",
-    authDomain: "barangfound.firebaseapp.com",
-    databaseURL: "https://barangfound-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "barangfound",
-    storageBucket: "barangfound.firebasestorage.app",
-    messagingSenderId: "811507258125",
-    appId: "1:811507258125:web:1758bd8a7aadeaf57cd644"
-  };
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD4tJuj4T6ha7-Jsu4g3NgQWLJGnLbWxpA",
+      authDomain: "barangfound.firebaseapp.com",
+      databaseURL: "https://barangfound-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "barangfound",
+      storageBucket: "barangfound.firebasestorage.app",
+      messagingSenderId: "811507258125",
+      appId: "1:811507258125:web:1758bd8a7aadeaf57cd644"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-  const path = window.location.pathname.replace("/", "");
+    const path = window.location.pathname.replace("/", "");
 
-  if (path && path.length >= 6) {
-    document.getElementById("form-section").style.display = "none";
-    get(ref(db, "barang/" + path)).then(snapshot => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        document.getElementById("show-section").style.display = "block";
-        document.getElementById("data-box").innerHTML = `
-          <b>Nama:</b> ${data.nama}<br>
-          <b>Barang:</b> ${data.barang}<br>
-          <b>No WA:</b> ${data.wa}
-        `;
-      } else {
-        Swal.fire("Data tidak ditemukan", "", "error");
-      }
-    });
-  }
-
-  window.uploadData = async function() {
-    const nama = document.getElementById("nama").value;
-    const barang = document.getElementById("barang").value;
-    const wa = document.getElementById("wa").value;
-
-    if (!nama || !barang || !wa) {
-      Swal.fire("Isi semua kolom", "", "warning");
-      return;
+    // Jika ada ID di URL → tampilkan data barang
+    if (path && path.length >= 6) {
+      document.getElementById("form-section").style.display = "none";
+      get(ref(db, "barang/" + path)).then(snapshot => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          document.getElementById("show-section").style.display = "block";
+          document.getElementById("data-box").innerHTML = `
+            <b>👤 Nama:</b> ${data.nama}<br>
+            <b>🎒 Barang:</b> ${data.barang}<br>
+            <b>📱 No WA:</b> <a href="https://wa.me/${data.wa}" target="_blank">${data.wa}</a>
+          `;
+        } else {
+          Swal.fire("😢 Data tidak ditemukan", "Periksa kembali QR atau URL-nya", "error");
+        }
+      });
     }
 
-    const uid = Math.random().toString(36).substring(2, 10);
-    await set(ref(db, "barang/" + uid), { nama, barang, wa });
+    // Upload Data ke Firebase
+    window.uploadData = async function() {
+      const nama = document.getElementById("nama").value.trim();
+      const barang = document.getElementById("barang").value.trim();
+      const wa = document.getElementById("wa").value.trim();
 
-    const url = `${window.location.origin}/${uid}`;
-    QRCode.toCanvas(document.createElement("canvas"), url, function (err, canvas) {
-      const qrDiv = document.getElementById("qr-container");
-      qrDiv.innerHTML = `<p>Scan QR ini untuk melihat data:</p>`;
-      qrDiv.appendChild(canvas);
+      if (!nama || !barang || !wa) {
+        Swal.fire("⚠️ Isi semua kolom terlebih dahulu!", "", "warning");
+        return;
+      }
 
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL();
-      a.download = `QR_${uid}.png`;
-      a.innerText = "Download QR";
-      a.style.display = "block";
-      a.style.marginTop = "10px";
-      qrDiv.appendChild(a);
-    });
-  };
-</script>
+      const uid = Math.random().toString(36).substring(2, 10);
+      await set(ref(db, "barang/" + uid), { nama, barang, wa });
+
+      const url = `${window.location.origin}/${uid}`;
+      QRCode.toCanvas(document.createElement("canvas"), url, function (err, canvas) {
+        const qrDiv = document.getElementById("qr-container");
+        qrDiv.innerHTML = `<p style="font-weight:600;">✅ Scan QR ini untuk melihat data:</p>`;
+        qrDiv.appendChild(canvas);
+
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL();
+        a.download = `QR_${uid}.png`;
+        a.innerText = "📥 Download QR Code";
+        a.style.display = "inline-block";
+        a.style.marginTop = "15px";
+        a.style.background = "#2196f3";
+        a.style.color = "white";
+        a.style.padding = "10px 20px";
+        a.style.borderRadius = "25px";
+        a.style.textDecoration = "none";
+        a.style.boxShadow = "0 4px 10px rgba(33,150,243,0.3)";
+        a.style.transition = "0.3s";
+        a.onmouseover = () => (a.style.transform = "scale(1.05)");
+        a.onmouseout = () => (a.style.transform = "scale(1)");
+        qrDiv.appendChild(a);
+      });
+
+      Swal.fire("🎉 Data berhasil diupload!", "QR Code siap digunakan.", "success");
+    };
+  </script>
 
 </body>
 </html>
