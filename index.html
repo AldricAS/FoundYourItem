@@ -107,35 +107,17 @@
     }
 
     /* 🌟 Animasi */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes bounce {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-10px); }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
   </style>
 </head>
 <body>
 
-  <h2>📦 Temukan barang</h2>
+  <h2>📦 Temukan barangmu</h2>
 
   <div id="form-section">
     <input type="text" id="nama" placeholder="Nama Pemilik">
@@ -161,11 +143,9 @@
   </footer>
 
   <script type="module">
-    // ✅ Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyD4tJuj4T6ha7-Jsu4g3NgQWLJGnLbWxpA",
       authDomain: "barangfound.firebaseapp.com",
@@ -178,7 +158,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
     const path = window.location.pathname.replace("/", "");
 
     // Jika ada ID di URL → tampilkan data barang
@@ -191,7 +170,8 @@
           document.getElementById("data-box").innerHTML = `
             <b>👤 Nama:</b> ${data.nama}<br>
             <b>🎒 Barang:</b> ${data.barang}<br>
-            <b>📱 No WA:</b> <a href="https://wa.me/${data.wa}" target="_blank">${data.wa}</a>
+            <b>📱 No WA:</b> <a href="https://wa.me/${data.wa}" target="_blank">${data.wa}</a><br>
+            ${data.lokasi ? `<b>📍 Lokasi:</b> <a href="https://www.google.com/maps?q=${data.lokasi.lat},${data.lokasi.lng}" target="_blank">Lihat di Google Maps</a>` : ""}
           `;
         } else {
           Swal.fire("😢 Data tidak ditemukan", "Periksa kembali QR atau URL-nya", "error");
@@ -199,7 +179,7 @@
       });
     }
 
-    // Upload Data ke Firebase
+    // Upload Data ke Firebase + lokasi
     window.uploadData = async function() {
       const nama = document.getElementById("nama").value.trim();
       const barang = document.getElementById("barang").value.trim();
@@ -210,34 +190,43 @@
         return;
       }
 
-      const uid = Math.random().toString(36).substring(2, 10);
-      await set(ref(db, "barang/" + uid), { nama, barang, wa });
-
-      const url = `${window.location.origin}/${uid}`;
-      QRCode.toCanvas(document.createElement("canvas"), url, function (err, canvas) {
-        const qrDiv = document.getElementById("qr-container");
-        qrDiv.innerHTML = `<p style="font-weight:600;">✅ Scan QR ini untuk melihat data:</p>`;
-        qrDiv.appendChild(canvas);
-
-        const a = document.createElement("a");
-        a.href = canvas.toDataURL();
-        a.download = `QR_${uid}.png`;
-        a.innerText = "📥 Download QR Code";
-        a.style.display = "inline-block";
-        a.style.marginTop = "15px";
-        a.style.background = "#2196f3";
-        a.style.color = "white";
-        a.style.padding = "10px 20px";
-        a.style.borderRadius = "25px";
-        a.style.textDecoration = "none";
-        a.style.boxShadow = "0 4px 10px rgba(33,150,243,0.3)";
-        a.style.transition = "0.3s";
-        a.onmouseover = () => (a.style.transform = "scale(1.05)");
-        a.onmouseout = () => (a.style.transform = "scale(1)");
-        qrDiv.appendChild(a);
+      Swal.fire({
+        title: "📍 Mengambil lokasi...",
+        text: "Mohon izinkan akses lokasi agar data lebih akurat.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
       });
 
-      Swal.fire("🎉 Data berhasil diupload!", "QR Code siap digunakan.", "success");
+      // Ambil lokasi GPS
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lokasi = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const uid = Math.random().toString(36).substring(2, 10);
+        await set(ref(db, "barang/" + uid), { nama, barang, wa, lokasi });
+
+        const url = `${window.location.origin}/${uid}`;
+        QRCode.toCanvas(document.createElement("canvas"), url, function (err, canvas) {
+          const qrDiv = document.getElementById("qr-container");
+          qrDiv.innerHTML = `<p style="font-weight:600;">✅ Scan QR ini untuk melihat data:</p>`;
+          qrDiv.appendChild(canvas);
+
+          const a = document.createElement("a");
+          a.href = canvas.toDataURL();
+          a.download = `QR_${uid}.png`;
+          a.innerText = "📥 Download QR Code";
+          a.style.display = "inline-block";
+          a.style.marginTop = "15px";
+          a.style.background = "#2196f3";
+          a.style.color = "white";
+          a.style.padding = "10px 20px";
+          a.style.borderRadius = "25px";
+          a.style.textDecoration = "none";
+          qrDiv.appendChild(a);
+        });
+
+        Swal.fire("🎉 Data & Lokasi Berhasil Diupload!", "QR Code siap digunakan.", "success");
+      }, () => {
+        Swal.fire("❌ Lokasi tidak bisa diambil", "Pastikan GPS aktif & izinkan lokasi.", "error");
+      });
     };
   </script>
 
