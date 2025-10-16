@@ -114,7 +114,6 @@
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
   </style>
-  <meta name="google-adsense-account" content="ca-pub-3550578927588612">
 </head>
 <body>
 
@@ -136,11 +135,9 @@
   </div>
 
   <footer>
-    © Copyright 2024–2025 by <span>AldricAS</span>
-  </footer>
-
-  <footer>
-    <span>SEMUA HAK DILINDUNGI UNDANG-UNDANG</span> "Laa sahla illa maa ja'altahu sahlaa, wa anta taj'alul-hazna idza syi'ta sahlaa." (Ya Allah, tidak ada yang mudah kecuali apa yang Engkau mudahkan dan tidak ada yang sulit jika Engkau menghendakinya kemudahan.) 
+    © Copyright 2024–2025 by <span>AldricAS</span><br>
+    <span>SEMUA HAK DILINDUNGI UNDANG-UNDANG</span><br>
+    <i>"Laa sahla illa maa ja'altahu sahlaa, wa anta taj'alul-hazna idza syi'ta sahlaa." (Ya Allah, tidak ada yang mudah kecuali apa yang Engkau mudahkan dan tidak ada yang sulit jika Engkau menghendakinya kemudahan.</i>
   </footer>
 
   <script type="module">
@@ -198,7 +195,6 @@
         didOpen: () => Swal.showLoading()
       });
 
-      // Ambil lokasi GPS
       navigator.geolocation.getCurrentPosition(async (pos) => {
         const lokasi = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         const uid = Math.random().toString(36).substring(2, 10);
@@ -230,6 +226,20 @@
       });
     };
   </script>
+
+  <!-- 🟢 Start of Tawk.to Script -->
+  <script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/6856ab37ad02b0190ecad033/default';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!-- 🔵 End of Tawk.to Script -->
 
 </body>
 </html>
